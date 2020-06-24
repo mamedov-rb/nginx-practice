@@ -1,0 +1,45 @@
+version: "3.3"
+
+services:
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - server
+    networks: 
+      - client-backend 
+    volumes:
+      - ./html:/www/data/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+  server:
+    image: mamedovrb/chat-service-image:latest
+    container_name: chat-service-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - database-backend
+      - client-backend
+
+  database:
+    image: postgres:10-alpine
+    restart: always
+    container_name: chat-postgres-container
+    environment:
+      - "POSTGRES_USER=chat_admin"
+      - "POSTGRES_PASSWORD=123qwe"
+      - "POSTGRES_DB=chat_db"
+    networks:
+      - database-backend
+    ports:
+    - "5432:5432"
+
+networks:
+  database-backend:
+  client-backend:
